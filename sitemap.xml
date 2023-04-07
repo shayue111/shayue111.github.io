@@ -186,6 +186,13 @@
   </url>
   
   <url>
+    <loc>https://shayue111.github.io/tags/Efficient-Framework/</loc>
+    <lastmod>2023-04-07</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://shayue111.github.io/tags/Transformers/</loc>
     <lastmod>2023-04-07</lastmod>
     <changefreq>daily</changefreq>
@@ -194,13 +201,6 @@
   
   <url>
     <loc>https://shayue111.github.io/tags/BERT-Family/</loc>
-    <lastmod>2023-04-07</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://shayue111.github.io/tags/Efficient-Framework/</loc>
     <lastmod>2023-04-07</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
