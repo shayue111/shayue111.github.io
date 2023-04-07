@@ -1,0 +1,151 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> LoRA Explained · Shayue'Log</title><meta name="description" content="LoRA Explained - wangt"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="/images/waterlemon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="search" type="application/opensearchdescription+xml" href="https://shayue111.github.io/atom.xml" title="Shayue'Log"><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.2.0"><link rel="alternate" href="/atom.xml" title="Shayue'Log" type="application/atom+xml">
+</head><body><header><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">HOME</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="/categories/" target="_self" class="nav-list-link">CATEGORY</a></li><li class="nav-list-item"><a href="/tags/" target="_self" class="nav-list-link">TAG</a></li><li class="nav-list-item"><a href="/about/" target="_self" class="nav-list-link">ABOUT</a></li></ul></header><main class="container"><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+    }
+});</script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});</script><script async type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><div class="post"><article class="post-block"><h1 class="post-title">LoRA Explained</h1><div class="post-info">Apr 7, 2023<a href="/tags/Efficient-Framework/" class="tag-title"># Efficient Framework</a></div><div class="post-content"><blockquote>
+<p>近些时间，大模型如雨后春笋般，突的一下，进入公众视野，诸如语言领域的ChatGPT，或是图像领域的Stable Diffusion。它们在各自领域上带给用户不俗的使用体验。在算法应用开发的角度，我们更关心能不能在特定的算法环境中使用上这些先进的大模型，而庞大的模型参数量为这个问题蒙上一些不确定性。本文要介绍的<code>LoRA</code>无疑是为大模型的训练提供了一种新的可能。</p>
+</blockquote>
+<a id="more"></a>
+<p>近些时间，大模型如雨后春笋般，突的一下，进入公众视野，诸如语言领域的<code>ChatGPT</code>，或是图像领域的<code>Stable Diffusion</code>。它们在各自领域上带给用户不俗的使用体验。同时，也不禁令人思考，<code>AIGC</code>到底能再往前进化到何种程度？</p>
+<p>在<code>ChatGPT</code>如日中天，鼎沸到在食堂排队都能听到其他同事乐此不疲地讨论时，我对它的“落地”并不抱有期待。因为在算法应用开发的角度，我们更关心能不能在特定的算法环境中使用上这些先进的大模型，而庞大的模型参数量为这个问题蒙上一些不确定性。</p>
+<h2 id="Background">Background</h2>
+<h4 id="LLM-Parameters">LLM Parameters</h4>
+<table>
+<thead>
+<tr>
+<th><strong>公司</strong></th>
+<th><strong>模型</strong></th>
+<th><strong>参数量（Bilion）</strong></th>
+<th><strong>计算资源</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OpenAI</td>
+<td>GPT-3</td>
+<td>175</td>
+<td>30000+ A100</td>
+</tr>
+<tr>
+<td>Google</td>
+<td>PaLM-E</td>
+<td>562</td>
+<td>/</td>
+</tr>
+<tr>
+<td>Meta</td>
+<td>LLaMA</td>
+<td>7/13/33/65</td>
+<td>2048 A100 for 5 months</td>
+</tr>
+</tbody>
+</table>
+<p><font size=2><strong>注：</strong><code>bert-base</code>的参数量是<code>110 milion</code></font></p>
+<p>基于拥有如此庞大参数量的大模型，在进行下游任务的<code>fine-tuning</code>时，更新<code>LLM</code>的全部参数需要大量的计算资源。</p>
+<h4 id="What’s-LoRA">What’s LoRA</h4>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2106.09685">LoRA</a>，即<code>low-rank adapation</code>的缩写，它是一种应用在<code>LLM fine-tuning</code>阶段的训练方式。它能帮助以较少的计算资源和开销进行<code>LLM fine-tuning</code>，比较知名的项目有：</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://github.com/tloen/alpaca-lora">Alpaca-LoRA</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/cloneofsimo/lora">Low-rank Adaptation for Fast Text-to-Image Diffusion Fine-tuning</a></li>
+</ol>
+<p>基于<code>LoRA fine-tuning</code>的模型性能没有过多降低。在论文的实验部分，甚至还有一些任务反超了<code>fully fine-tuned model</code>。</p>
+<h2 id="Related-Works">Related Works</h2>
+<h4 id="Adding-adapater-layers">Adding adapater layers</h4>
+<p>该类方法的主要思想就是在大模型中新增一些<code>adapter layers</code>，在<code>fine-tuning</code>过程中，仅更新这些新增的参数，避免对大模型整体参数的更新，以达到降低计算开销的目的。以下为部分工作：</p>
+<ul>
+<li>2017，[Learning multiple visual domains with residual adapters.](<a target="_blank" rel="noopener" href="http://arxiv.org/">http://arxiv.org/</a> abs/1705.08045)</li>
+<li>2019，<a target="_blank" rel="noopener" href="http://arxiv.org/abs/1902">Parameter-Efficient Transfer Learning for NLP.</a></li>
+<li>2020，<a target="_blank" rel="noopener" href="https://aclanthology.org/2020.findings-emnlp.41">Exploring versatile generative language model via parameter-efficient transfer learning.</a></li>
+</ul>
+<p>严格来说，<code>LoRA</code>也属于这种方式，但是相比于上述工作，它在推理时的速度并不会因为新增的参数而降低，后续会详细介绍它的计算方式。</p>
+<h4 id="Optimizing-the-input-word-embedding">Optimizing the input word embedding</h4>
+<p>比较新颖的方法，<code>Prefix-Tuning</code>旨在<code>Embedding Layer</code>增加额外参数，冻结剩余网络参数，以进行下游任务的训练。</p>
+<ul>
+<li>2021，<a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2101.00190.pdf">Prefix-Tuning: Optimizing Continuous Prompts for Generation</a></li>
+</ul>
+<h2 id="LoRA-Method">LoRA Method</h2>
+<h4 id="Intrinsic-Dimension">Intrinsic Dimension</h4>
+<p><img src="/images/LoRA/swiss_roll_data.png" alt="Swiss roll data"><center style="font-size:14px;color:#C0C0C0">Swiss roll data curves, from <a target="_blank" rel="noopener" href="https://twitter.com/lightonio/status/1240687522608373760">https://twitter.com/lightonio/status/1240687522608373760</a></center></p>
+<p>From <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Intrinsic_dimension">Wikipidia</a></p>
+<blockquote>
+<p>The intrinsic dimension for a data set can be thought of as the number of variables needed in a minimal representation of the data.</p>
+</blockquote>
+<p><a name="jaT4G"></a></p>
+<h4 id="Fine-tune-LLM">Fine-tune LLM</h4>
+<p>我们都知道，有监督神经网络的训练范式大多基于<strong>梯度下降</strong>，即一轮<code>batch data</code>过后，通过本轮数据计算<code>loss</code>更新网络参数$W$。假定当前轮为第$t$，即：</p>
+<p>$$<br>
+\begin{equation}<br>
+W_{t+1} = W_t - lr * \Delta{W_t}<br>
+\end{equation}<br>
+$$<br>
+对于模型的训练，其本质是参数$W$的不断更新，记初始参数为$W_0$，训练结束得到的参数为$W_T$。对于<code>LLM</code>来说，$W_0$代表作为<code>Pretrained-model</code>的参数，通过多轮的训练，经历多个$\Delta{W}$的更新后得到$W_T$。在更新的过程中，有：</p>
+<p>$$<br>
+\begin{equation}<br>
+\begin{gathered}<br>
+W_1 = W_0 - lr * \Delta{W_0} \<br>
+W_2 = W_1 - lr * \Delta{W_1} \<br>
+W_3 = W_2 - lr * \Delta{W_2} \<br>
+\ldots \<br>
+W_T = W_{T-1} - lr * \Delta{W_{T-1}}<br>
+\end{gathered}<br>
+\iff<br>
+W_T = W_0 - lr * (\Delta{W_0} + \Delta{W_1} + \cdots + \Delta{W_{T-1}})<br>
+\end{equation}<br>
+$$</p>
+<p>从这个角度来看，对模型<code>fine-tuning</code>的过程就像是学习一个适应<strong>特定任务</strong>的$\Delta{W}$，结合$W_0$及$\Delta{W}$进行推理，如图1所示。因此，若将$\Delta{W}$作为可训练的参数，<code>fine-tuning LLM</code>即转化为对$\Delta{W}$的拟合。</p>
+<p><img src="/images/LoRA/before.png" alt="图1"></p>
+<center style="font-size:14px;color:#C0C0C0">图1</center>
+<h4 id="Introduce-LoRA">Introduce LoRA</h4>
+<p>有<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2012.13255">论文</a>在实验对比的过程中，发现<code>LLM</code>的参数有着较低的$\text{Intrinsic Demension}$，受此启发，<code>LoRA</code>的作者假定$\Delta{W}$也存在这种特性。</p>
+<p>From <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2106.09685">LoRA Paper</a></p>
+<blockquote>
+<p>Inspired by this, we hypothesize the updates to the weights also have a low “intrinsic rank” during adapation.</p>
+</blockquote>
+<p>若$\Delta{W}$存在较低的$\text{Intrinsic Rank}$，可以对其进行<strong>矩阵分解</strong>$\left(\text{Matrix Factorization}\right)$，即：<br>
+$$<br>
+\begin{equation}<br>
+\Delta{W} = BA<br>
+\end{equation}<br>
+$$</p>
+<p>$\Delta{W} \in \mathbb{R^{d<em>k}}, B \in \mathbb{R^{d</em>r}}, A \in \mathbb{R^{r*k}}, r \ll \min(d, k)$，使用$(3)$式表示$\Delta{W}$之后，参与学习的参数量得倒缩减，由$O(d * k)$缩减至$O((d + k) * r)$。</p>
+<p><img src="/images/LoRA/after.png" alt="图2"></p>
+<center style="font-size:14px;color:#C0C0C0">图2</center>
+<h2 id="Practice">Practice</h2>
+<p><code>LoRA</code>的想法看起来十分简单，目前开源社区有两方实现其工程代码。</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/microsoft/LoRA">论文作者</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/huggingface/peft">hugging face PEFT</a></li>
+</ul>
+<p>后者主要对在<code>PyTorch FSDP</code>的训练模式上进行调整，但在使用形式上没有区别，以下基于<strong>论文作者</strong>的版本进行介绍。<br>
+<a name="xfdTU"></a></p>
+<h4 id="Quick-Start">Quick Start</h4>
+<p><strong>安装</strong></p>
+<p><code>pip install git+https://github.com/microsoft/LoRA</code></p>
+<p><strong>使用</strong></p>
+<ul>
+<li>创建</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ===== Before =====</span></span><br><span class="line">layer = nn.Linear(in_features, out_features)</span><br><span class="line"></span><br><span class="line"><span class="comment"># ===== After ======</span></span><br><span class="line"><span class="keyword">import</span> loralib <span class="keyword">as</span> lora</span><br><span class="line"><span class="comment"># Add a pair of low-rank adaptation matrices with rank r=16</span></span><br><span class="line">layer = lora.Linear(in_features, out_features, r=<span class="number">16</span>)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>循环</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> loralib <span class="keyword">as</span> lora</span><br><span class="line">model = BigModel()</span><br><span class="line"><span class="comment"># This sets requires_grad to False for all parameters without the string &quot;lora_&quot; in their names</span></span><br><span class="line">lora.mark_only_lora_as_trainable(model)</span><br><span class="line"><span class="comment"># Training loop</span></span><br><span class="line"><span class="keyword">for</span> batch <span class="keyword">in</span> dataloader:</span><br><span class="line">   ...</span><br></pre></td></tr></table></figure>
+<ul>
+<li>保存模型</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ===== Before =====</span></span><br><span class="line">torch.save(model.state_dict(), checkpoint_path)</span><br><span class="line"><span class="comment"># ===== After =====</span></span><br><span class="line">torch.save(lora.lora_state_dict(model), checkpoint_path)</span><br></pre></td></tr></table></figure>
+<h4 id="LoRA-Layer">LoRA Layer</h4>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LoRALayer</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">        self, </span></span></span><br><span class="line"><span class="function"><span class="params">        r: <span class="built_in">int</span>, </span></span></span><br><span class="line"><span class="function"><span class="params">        lora_alpha: <span class="built_in">int</span>, </span></span></span><br><span class="line"><span class="function"><span class="params">        lora_dropout: <span class="built_in">float</span>,</span></span></span><br><span class="line"><span class="function"><span class="params">        merge_weights: <span class="built_in">bool</span>,</span></span></span><br><span class="line"><span class="function"><span class="params">    </span>):</span></span><br><span class="line">        self.r = r</span><br><span class="line">        self.lora_alpha = lora_alpha</span><br><span class="line">        <span class="comment"># Optional dropout</span></span><br><span class="line">        <span class="keyword">if</span> lora_dropout &gt; <span class="number">0.</span>:</span><br><span class="line">            self.lora_dropout = nn.Dropout(p=lora_dropout)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            self.lora_dropout = <span class="keyword">lambda</span> x: x</span><br><span class="line">        <span class="comment"># Mark the weight as unmerged</span></span><br><span class="line">        self.merged = <span class="literal">False</span></span><br><span class="line">        self.merge_weights = merge_weights</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Linear</span>(<span class="params">nn.Linear, LoRALayer</span>):</span></span><br><span class="line">    <span class="comment"># LoRA implemented in a dense layer</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">        self, </span></span></span><br><span class="line"><span class="function"><span class="params">        in_features: <span class="built_in">int</span>, </span></span></span><br><span class="line"><span class="function"><span class="params">        out_features: <span class="built_in">int</span>, </span></span></span><br><span class="line"><span class="function"><span class="params">        r: <span class="built_in">int</span> = <span class="number">0</span>, </span></span></span><br><span class="line"><span class="function"><span class="params">        lora_alpha: <span class="built_in">int</span> = <span class="number">1</span>, </span></span></span><br><span class="line"><span class="function"><span class="params">        lora_dropout: <span class="built_in">float</span> = <span class="number">0.</span>,</span></span></span><br><span class="line"><span class="function"><span class="params">        fan_in_fan_out: <span class="built_in">bool</span> = <span class="literal">False</span>, <span class="comment"># Set this to True if the layer to replace stores weight like (fan_in, fan_out)</span></span></span></span><br><span class="line"><span class="function"><span class="params">        merge_weights: <span class="built_in">bool</span> = <span class="literal">True</span>,</span></span></span><br><span class="line"><span class="function"><span class="params">        **kwargs</span></span></span><br><span class="line"><span class="function"><span class="params">    </span>):</span></span><br><span class="line">        nn.Linear.__init__(self, in_features, out_features, **kwargs)</span><br><span class="line">        LoRALayer.__init__(self, r=r, lora_alpha=lora_alpha, lora_dropout=lora_dropout,</span><br><span class="line">                           merge_weights=merge_weights)</span><br><span class="line"></span><br><span class="line">        self.fan_in_fan_out = fan_in_fan_out</span><br><span class="line">        <span class="comment"># Actual trainable parameters</span></span><br><span class="line">        <span class="keyword">if</span> r &gt; <span class="number">0</span>:</span><br><span class="line">            self.lora_A = nn.Parameter(self.weight.new_zeros((r, in_features)))</span><br><span class="line">            self.lora_B = nn.Parameter(self.weight.new_zeros((out_features, r)))</span><br><span class="line">            self.scaling = self.lora_alpha / self.r</span><br><span class="line">            <span class="comment"># Freezing the pre-trained weight matrix</span></span><br><span class="line">            self.weight.requires_grad = <span class="literal">False</span></span><br><span class="line">        self.reset_parameters()</span><br><span class="line">        <span class="keyword">if</span> fan_in_fan_out:</span><br><span class="line">            self.weight.data = self.weight.data.T</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">reset_parameters</span>(<span class="params">self</span>):</span></span><br><span class="line">        nn.Linear.reset_parameters(self)</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">hasattr</span>(self, <span class="string">&#x27;lora_A&#x27;</span>):</span><br><span class="line">            <span class="comment"># initialize A the same way as the default for nn.Linear and B to zero</span></span><br><span class="line">            nn.init.kaiming_uniform_(self.lora_A, a=math.sqrt(<span class="number">5</span>))</span><br><span class="line">            nn.init.zeros_(self.lora_B)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">train</span>(<span class="params">self, mode: <span class="built_in">bool</span> = <span class="literal">True</span></span>):</span></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">T</span>(<span class="params">w</span>):</span></span><br><span class="line">            <span class="keyword">return</span> w.T <span class="keyword">if</span> self.fan_in_fan_out <span class="keyword">else</span> w</span><br><span class="line">        nn.Linear.train(self, mode)</span><br><span class="line">        <span class="keyword">if</span> self.merge_weights <span class="keyword">and</span> self.merged:</span><br><span class="line">            <span class="comment"># Make sure that the weights are not merged</span></span><br><span class="line">            <span class="keyword">if</span> self.r &gt; <span class="number">0</span>:</span><br><span class="line">                self.weight.data -= T(self.lora_B @ self.lora_A) * self.scaling</span><br><span class="line">            self.merged = <span class="literal">False</span></span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">eval</span>(<span class="params">self</span>):</span></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">T</span>(<span class="params">w</span>):</span></span><br><span class="line">            <span class="keyword">return</span> w.T <span class="keyword">if</span> self.fan_in_fan_out <span class="keyword">else</span> w</span><br><span class="line">        nn.Linear.<span class="built_in">eval</span>(self)</span><br><span class="line">        <span class="keyword">if</span> self.merge_weights <span class="keyword">and</span> <span class="keyword">not</span> self.merged:</span><br><span class="line">            <span class="comment"># Merge the weights and mark it</span></span><br><span class="line">            <span class="keyword">if</span> self.r &gt; <span class="number">0</span>:</span><br><span class="line">                self.weight.data += T(self.lora_B @ self.lora_A) * self.scaling</span><br><span class="line">            self.merged = <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span>(<span class="params">self, x: torch.Tensor</span>):</span></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">T</span>(<span class="params">w</span>):</span></span><br><span class="line">            <span class="keyword">return</span> w.T <span class="keyword">if</span> self.fan_in_fan_out <span class="keyword">else</span> w</span><br><span class="line">        <span class="keyword">if</span> self.r &gt; <span class="number">0</span> <span class="keyword">and</span> <span class="keyword">not</span> self.merged:</span><br><span class="line">            result = F.linear(x, T(self.weight), bias=self.bias)</span><br><span class="line">            <span class="keyword">if</span> self.r &gt; <span class="number">0</span>:</span><br><span class="line">                result += (self.lora_dropout(x) @ self.lora_A.T @ self.lora_B.T) * self.scaling</span><br><span class="line">            <span class="keyword">return</span> result</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">return</span> F.linear(x, T(self.weight), bias=self.bias)</span><br></pre></td></tr></table></figure>
+</div></article></div></main><footer><div class="paginator"><a href="/Natural-Language-Processing/BERT_Explained/" class="next">NEXT →</a></div><div class="copyright"><p>© 2020 - 2023 by shayue.wt. All Rights Reserved.</p></div></footer></body><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script></html>

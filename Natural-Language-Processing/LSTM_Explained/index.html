@@ -1,0 +1,120 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> LSTM Explained · Shayue'Log</title><meta name="description" content="LSTM Explained - wangt"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="/images/waterlemon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="search" type="application/opensearchdescription+xml" href="https://shayue111.github.io/atom.xml" title="Shayue'Log"><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.2.0"><link rel="alternate" href="/atom.xml" title="Shayue'Log" type="application/atom+xml">
+</head><body><header><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">HOME</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="/categories/" target="_self" class="nav-list-link">CATEGORY</a></li><li class="nav-list-item"><a href="/tags/" target="_self" class="nav-list-link">TAG</a></li><li class="nav-list-item"><a href="/about/" target="_self" class="nav-list-link">ABOUT</a></li></ul></header><main class="container"><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+    }
+});</script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});</script><script async type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><div class="post"><article class="post-block"><h1 class="post-title">LSTM Explained</h1><div class="post-info">Apr 1, 2021<a href="/tags/Sequence-Model/" class="tag-title"># Sequence Model</a></div><div class="post-content"><blockquote>
+<p>在时序相关或者文本相关的任务中，人们常常会使用<code>RNN-Based</code>的序列模型，本文将主要介绍<code>LSTM</code>涉及到的一些知识点。主要参考几篇优秀的博文，链接将放在最后的<a href="#jump">Reference</a>中，感兴趣的建议直接阅读原文🚘。</p>
+</blockquote>
+<a id="more"></a>
+<p>为了避免<code>Vanilla RNN</code>在输入长文本后带来的梯度消失问题，研究者提出了<code>LSTM unit</code>，即<code>long-short term memory unit</code>，使用它们作为整个序列模型中的最小单元。</p>
+<p>在<code>LSTM unit</code>中共存在两种<code>state</code>，一类是<code>hidden state</code>，另一类是<code>cell state</code>。同时，引入了<code>门机制</code>，分别为<code>Forget Gate</code>、<code>Update Gate/Input Gate</code>以及<code>Output Gate</code>。在每一个<code>time step</code>时，模型通过<code>上述的门机制</code>决定应该存放哪些信息，同时过滤掉哪些信息。</p>
+<p>首先，为了阐明<code>LSTM unit</code>的计算机制，先对其内部架构进行一定的了解，如下图所示：</p>
+<p><img src="https://miro.medium.com/max/700/0*exoKHMF9vYA3ZJvJ.png" alt="LSTM unit"><center style="font-size:14px;color:#C0C0C0">Fig 1. LSTM unit, from <a target="_blank" rel="noopener" href="https://miro.medium.com/max/700/0*exoKHMF9vYA3ZJvJ.png">https://miro.medium.com/max/700/0*exoKHMF9vYA3ZJvJ.png</a></center></p>
+<p>通过<code>Fig 1</code>，我们可以预览到<code>LSTM</code>传播时数据的大致流通过程。更近一步的，通过以下动图可以一目了然地观察到数据是怎么在一个<code>unit</code>中流动的。</p>
+<p><img src="https://miro.medium.com/proxy/1*goJVQs-p9kgLODFNyhl9zA.gif" alt="Long Short Term Memory with its gates"><center style="font-size:14px;color:#C0C0C0">Fig 2. Data flow in LSTM unit, from <a target="_blank" rel="noopener" href="https://miro.medium.com/proxy/1*goJVQs-p9kgLODFNyhl9zA.gif">https://miro.medium.com/proxy/1*goJVQs-p9kgLODFNyhl9zA.gif</a></center></p>
+<p>可以清晰地看到，在时间步<code>t</code>时，<code>unit</code>接收来自时间步<code>t-1</code>的$c_{t-1}$与$h_{t-1}$，经过若干次的线性变化以及point-wise操作后，输出<code>c_t</code>与<code>h_t</code>。下面将具体介绍每个门机制的运行过程以及个人对于该设计的理解。</p>
+<p>首先，我们可以将内部计算中涉及到门计算的部分分为以下几种。</p>
+<p><img src="https://miro.medium.com/max/700/0*G474BVfgtu5ZE4ai" alt="LSTM unit with gates"><center style="font-size:14px;color:#C0C0C0">Fig 3. Three types of gates in LSTM unit, from <a target="_blank" rel="noopener" href="https://miro.medium.com/max/700/0*G474BVfgtu5ZE4ai">https://miro.medium.com/max/700/0*G474BVfgtu5ZE4ai</a></center></p>
+<p>其中：</p>
+<ul>
+<li>最左边的部分为<code>Forget Gate</code>;</li>
+<li>中间的部分为<code>Input Gate或Update Gate</code>;</li>
+<li>最右边的部分为<code>Output Gate</code>.</li>
+</ul>
+<h3 id="Forget-Gate">Forget Gate</h3>
+<blockquote>
+<p>对于上一个时间步传递的<code>cell state</code>信息，<code>遗忘门</code>决定哪些信息需要被继续保持，哪些信息应被遗忘。</p>
+</blockquote>
+<p>假设当前所在的时间步为<code>t</code>，记当前<code>forget gate</code>的输入为$X_t$，$c_{t-1}$以及$h_{t-1}$，输出为$C_{tmp}$，根据上面动图中的计算，其相应的计算伪代码如下：</p>
+<ol>
+<li>将$X_t$与$h_{t-1}$进行<code>concatenation</code>，得到$[h_{t-1}, X_{t}]$；</li>
+<li>通过$W_{forget}$与$b_{forget}$进行线性转换，再通过<code>sigmoid</code>将计算结果转换到<code>[0, 1]</code>区间；</li>
+<li>最后，将上述输出的<code>概率向量</code>与$c_{t-1}$中保存的向量做<code>point-wise</code>乘法。</li>
+</ol>
+<p>下面是<code>Forget Gate</code>的计算公式：</p>
+<ol>
+<li>$Conbine = Concatenation(h_{t-1}, X_t)$</li>
+<li>$Z_f = Sigmoid(W_{forget} Conbine + b_{forget})$</li>
+<li>$c_{tmp} = c_{t-1} * Z_f$</li>
+</ol>
+<!-- \begin{equation*}
+\tag{1}
+\label{a}
+\begin{cases}
+    Conbine_{forget} = Concatenation(h_{t-1}, X_t) \\\\
+    O = Sigmoid(W_{forget} Conbine_{forget} + b_{forget}), \\\\
+    C_{t1} = C_{t-1} * O
+\end{cases}
+\end{equation*} -->
+<p>通过<code>Forget Gate</code>的一系列操作，上一个时间步的$c_{t-1}$第一次得到了更新，得到了$c_{tmp}$。我们用它表示在时间步<code>t</code>输出最终<code>cell state</code>前的中间值。</p>
+<p>我认为遗忘门运作的机制是：将之前保存的信息（存放在$h_{t-1}$）与当前时间步的输入信息（$X_t$）进行比较，进而去判断是否对$c_{t-1}$中的某些信息进行遗忘。当<code>sigmoid</code>输出的向量中某个位置输出的概率值更偏向于0，则说明$c_{t-1}$对应位置上的信息应该被遗忘；而当该位置的概率值更偏向1时，则$c_{t-1}$对应位置上的信息更应该保留。</p>
+<h3 id="Update-Gate-Input-Gate">Update Gate/Input Gate</h3>
+<blockquote>
+<p><code>更新门</code>需要考虑将哪些新信息保存或者贴加到<code>cell state</code>中，并且输出到下一个时间步。</p>
+</blockquote>
+<p>在<code>Update Gate</code>中，<code>unit</code>决定<code>什么信息</code>要被更新到$c_{tmp}$中。这组门运算的输入包括：$h_{t-1}, X_t, c_{tmp}$，输出为$c_{t}$：</p>
+<ol>
+<li>第一步还是同<code>Forget Gate</code>中形式的一样，先将$X_t$与$h_{t-1}$进行<code>concatenation</code>，得到$[h_{t-1}, X_{t}]$；</li>
+<li>接下来，分别进行两次线性变换，但是各自<code>activation function</code>不同，一个为<code>sigmod</code>，而另一个则为<code>tanh</code>；</li>
+<li>最后，将两个结果进行<code>point-wise</code>的乘法，得到<code>Update Gate</code>的输出。</li>
+</ol>
+<p>同样的，下面是<code>Update Gate</code>的计算公式：</p>
+<ol>
+<li>$Conbine = Concatenation(h_{t-1}, X_t)$</li>
+<li>$Z_u = Sigmoid(W_{update1} Conbine + b_{update1})$</li>
+<li>$O_u = Tanh(W_{update2} Conbine + b_{update2})$</li>
+<li>$c_{t} = c_{tmp} + Z_u * O_u$</li>
+</ol>
+<p><code>更新门</code>中共存在两组<code>线性转化</code>的参数：$(W_{update1}, b_{update1})$以及$(W_{update2}, b_{update2})$，各自的结果转化之后相乘，再加到$c_{tmp}$上，最后得到当前时间步将要输出的<code>cell state</code>。</p>
+<h3 id="Output-Gate">Output Gate</h3>
+<blockquote>
+<p><code>输出门</code>的作用在于结合各种信息，在当前的时间步做出决策，同时为下一个时间步的计算提供信息。</p>
+</blockquote>
+<p>除去上述的两组，<code>unit</code>中还剩下一组门运算，即<code>输出门</code>。它的输入包括$h_{t-1}, X_t, c_{t}$，最后的输出为$h_t$:</p>
+<ol>
+<li>第一步依旧是拼接$X_t$与$h_{t-1}$，得到$[h_{t-1}, X_{t}]$；</li>
+<li>通过$W_{output}$与$b_{output}$进行线性转换，再通过<code>sigmoid</code>将计算结果转换到<code>[0, 1]</code>区间；</li>
+<li>将$c_t$通过<code>tanh</code>运算；</li>
+<li>最后将2、3步的输出做<code>point-wise</code>的乘法，得到<code>Output Gate</code>的输出，也就是$h_t$。</li>
+</ol>
+<p>同样，下面是<code>Output Gate</code>的计算公式：</p>
+<ol>
+<li>$Conbine = Concatenation(h_{t-1}, X_t)$</li>
+<li>$Z_o = Sigmoid(W_{output} Conbine + b_{output})$</li>
+<li>$O_o = Tanh(c_t)$</li>
+<li>$h_t = Z_o * O_o$</li>
+</ol>
+<h2 id="总结">总结</h2>
+<p>到此，一个<code>LSTM unit</code>中的计算流程已经走完，下面我想谈一下个人对于其中几点的理解。首先是出现了两种激活函数<code>sigmoid</code>以及<code>tanh</code>。其中，<code>sigmoid</code>共出现了3次，分别在三个门中都出现；<code>tanh</code>则是出现在<code>Update Gate</code>以及<code>Output Gate</code>中。</p>
+<p><code>sigmoid</code>能将数值缩放至[0, 1]区间，它在<code>LSTM unit</code>中的使用都是与其他向量做<code>point-wise</code>的乘法，所以我认为使用它主要是为了使<code>unit</code>在处理时能够将信息进行保存或者遗忘。</p>
+<p><code>tanh</code>能将数值缩放至[-1, 1]区间，它在<code>LSTM unit</code>中被使用时基本上是为了将<code>信息</code>转化为<code>数值</code>，在<code>Update Gate</code>中，该数值会被记录到<code>cell state</code>中，在<code>Output Gate</code>中，该数值会被转化为下一个时间步的<code>hidden state</code>。</p>
+<h2 id="span-id-jump-Reference-span"><span id="jump">Reference</span></h2>
+<ul>
+<li>
+<p><a target="_blank" rel="noopener" href="https://towardsdatascience.com/illustrated-guide-to-recurrent-neural-networks-79e5eb8049c9">Illustrated Guide to Recurrent Neural Networks</a></p>
+</li>
+<li>
+<p><a target="_blank" rel="noopener" href="https://colah.github.io/posts/2015-08-Understanding-LSTMs/">Understanding LSTM Networks</a></p>
+</li>
+<li>
+<p><a target="_blank" rel="noopener" href="https://towardsdatascience.com/illustrated-guide-to-lstms-and-gru-s-a-step-by-step-explanation-44e9eb85bf21">Illustrated Guide to LSTM’s and GRU’s: A step by step explanation</a></p>
+</li>
+<li>
+<p><a target="_blank" rel="noopener" href="https://r2rt.com/written-memories-understanding-deriving-and-extending-the-lstm.html#recurrent-neural-networks">Written Memories: Understanding, Deriving and Extending the LSTM</a></p>
+</li>
+<li>
+<p><a target="_blank" rel="noopener" href="https://purnasaigudikandula.medium.com/recurrent-neural-networks-and-lstm-explained-7f51c7f6bbb9">Recurrent Neural Networks and LSTM explained</a></p>
+</li>
+</ul>
+</div></article></div></main><footer><div class="paginator"><a href="/Natural-Language-Processing/BERT_Explained/" class="prev">← BACK</a><a href="/Natural-Language-Processing/paper_spelling_error_correction/" class="next">NEXT →</a></div><div class="copyright"><p>© 2020 - 2023 by shayue.wt. All Rights Reserved.</p></div></footer></body><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script></html>

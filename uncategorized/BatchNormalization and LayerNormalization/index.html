@@ -1,0 +1,48 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> BatchNormalization and LayerNormalization · Shayue'Log</title><meta name="description" content="BatchNormalization and LayerNormalization - wangt"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="/images/waterlemon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="search" type="application/opensearchdescription+xml" href="https://shayue111.github.io/atom.xml" title="Shayue'Log"><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.2.0"><link rel="alternate" href="/atom.xml" title="Shayue'Log" type="application/atom+xml">
+</head><body><header><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">HOME</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="/categories/" target="_self" class="nav-list-link">CATEGORY</a></li><li class="nav-list-item"><a href="/tags/" target="_self" class="nav-list-link">TAG</a></li><li class="nav-list-item"><a href="/about/" target="_self" class="nav-list-link">ABOUT</a></li></ul></header><main class="container"><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+    }
+});</script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});</script><script async type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><div class="post"><article class="post-block"><h1 class="post-title">BatchNormalization and LayerNormalization</h1><div class="post-info">Dec 21, 2020</div><div class="post-content"><blockquote>
+<p>This post is to introduce Batch Normalization and Layer Normaliztion, which are of the $\textit{regularization}$ methods in $\textit{Deep Learning}$.</p>
+</blockquote>
+<a id="more"></a>
+<h2 id="Regularization">Regularization</h2>
+<p>Deep learning can be very powerful since the stacked deeper layers. Thus it’s easy to overfitt and has poor performance on unseen data. To avoid that, several regularization methods are been proposed. And this post will focus on two methods, namely $\textrm{Batch Normalization}$ and $\textrm{Layer Normalization}$.</p>
+<h2 id="Batch-Normalization">Batch Normalization</h2>
+<p>Let’s assume that we want to train a fully connected neural network, and we add a batch normalization layer into the net. We insert it between the activation layer and input layer like follow figure.</p>
+<p><img src="/images/Tricks/batch_norm.png" alt="batch norm"></p>
+<center style="font-size:14px;color:#C0C0C0">Figure1</center>
+<p><strong>Firstly, we’ll discuss the train period.</strong></p>
+<p>As the name implies, we need to calculate <code>mean</code> value and <code>standard variation</code> value for each batch train data. Apparently, these two variables are <code>vector</code>. Assume previous layer has 100 neurons, then the mean and std are both 100 dimension.</p>
+<p>The input shape of bacth normalization layer is (batch_size, 100), and use <code>X</code> to represent. So, when training with batch data, we do follow calculation in normalization layer for each batch. <code>i</code> is the number of batch, and the computation is element wise.</p>
+<p>$$<br>
+X_i^{\prime} = \frac{X - \mu_i}{\sigma_i}<br>
+$$</p>
+<p>After that, we use another two values $\gamma$ and $\beta$ to do another calculation. These two parameters are learnable, which means that they’ll be fitted with data in the training period like parameters <code>W</code> and <code>b</code>. The calculation is as follow:</p>
+<p>$$<br>
+X_i^{\prime \prime} = \gamma X_i^{\prime} + \beta<br>
+$$</p>
+<p>$X_i^{\prime \prime}$ will be sent to next layer doing $WX_i^{\prime \prime} + b$.</p>
+<p>Now, how does batch normalization do during test period? There has no <code>mean</code> value and <code>std</code> for test data, since no batch. What we do is to use the $\mu_i$ and $\sigma_i$, which are calculated in batch train period time. Use these values to do weight average. Bigger the batch number is, higher the corresponding weight is.</p>
+<h2 id="Layer-Normalization">Layer Normalization</h2>
+<p>Unlike batch normalization using each batch data to estimate $\mu$ and $\sigma$, layer normalization use the units of a layer. The mean value is the avearge of one layer’s units value, so as the standard variation. The equation is as follow:<br>
+$$<br>
+\mu_i = \frac{\sum_{j=1}^H a_H}{H} \\<br>
+$$</p>
+<p>Other setting and steps are same as before.</p>
+<h2 id="Reference">Reference</h2>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=BZh1ltr5Rkg">https://www.youtube.com/watch?v=BZh1ltr5Rkg</a></li>
+</ul>
+</div></article></div></main><footer><div class="paginator"><a href="/Natural-Language-Processing/paper_spelling_error_correction/" class="prev">← BACK</a><a href="/Computer-Vision/Connectionist%20Temporal%20Classification/" class="next">NEXT →</a></div><div class="copyright"><p>© 2020 - 2023 by shayue.wt. All Rights Reserved.</p></div></footer></body><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script></html>

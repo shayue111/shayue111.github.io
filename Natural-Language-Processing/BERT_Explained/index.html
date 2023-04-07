@@ -1,0 +1,49 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> BERT Explained · Shayue'Log</title><meta name="description" content="BERT Explained - wangt"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="/images/waterlemon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="search" type="application/opensearchdescription+xml" href="https://shayue111.github.io/atom.xml" title="Shayue'Log"><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.2.0"><link rel="alternate" href="/atom.xml" title="Shayue'Log" type="application/atom+xml">
+</head><body><header><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">HOME</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="/categories/" target="_self" class="nav-list-link">CATEGORY</a></li><li class="nav-list-item"><a href="/tags/" target="_self" class="nav-list-link">TAG</a></li><li class="nav-list-item"><a href="/about/" target="_self" class="nav-list-link">ABOUT</a></li></ul></header><main class="container"><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+    }
+});</script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});</script><script async type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><div class="post"><article class="post-block"><h1 class="post-title">BERT Explained</h1><div class="post-info">May 6, 2021<a href="/tags/Sequence-Model/" class="tag-title"># Sequence Model</a><a href="/tags/Transformers/" class="tag-title"># Transformers</a><a href="/tags/BERT-Family/" class="tag-title"># BERT Family</a></div><div class="post-content"><blockquote>
+<p>BERT, which means $Bidirectional \ Encoder \ Representations \ from \ Transformers$, is one kind of SOAT models in natural language preprocessing over multiple tasks. In this arctile, I want to note my opnion of this model architecture and its training method.</p>
+</blockquote>
+<a id="more"></a>
+<h2 id="Beginning">Beginning</h2>
+<p>BERT is proposed in 2018, from the paper <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1810.04805">BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding</a>. We can know its model architecture derived from Transformer, which is also proposed by Google in 2017 from the paper <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1706.03762">Attention Is All You Need</a>. Every time I mention these two amazing papers, I can hardly conceal my excitement. They provide creative ideas for computers to understand natural language. I even think all practitioners related to NLP should have basic knowledge of $BERT$.</p>
+<p>To explain $BERT$ clearly, I plan to introduce Machine Translation task, and its most common model architecture Sequence to Sequence firstly. Then, I’ll introduce the Transformer, which is one kind of <code>Seq2Seq</code> models but involving <code>Attention Mechanism</code> and the performance has been greatly imporved. Finally, we’ll focus on BERT.</p>
+<p>This article is my summary for related work and hope it’s helpful. Simultaneously, there are so many awesome articles and I list them at the end part <code>Reference</code>. Thanks for these authors’ excellent work to make all the core concepts clear.</p>
+<h2 id="Sequence-to-Sequence">Sequence to Sequence</h2>
+<p>$Seq2Seq$最常见的应用常见便是<code>机器翻译</code>，在过去的几年中，这个领域的研究有长足的突破，很多商业软件比如谷歌翻译、有道翻译等等达到了非常好的翻译效果。简单来说，机器翻译任务实现的是不同国家或者地区间语言的转换，能帮助人们更加畅通的沟通。</p>
+<p>除了上述提到的机器翻译，$Seq2Seq$理论上来说适用于任何序列文本间的转换，比如编程语言间的转换，从<code>C++</code>转换到<code>Golang</code>。甚至，那些本就不存在的语言，但是只要有着一定量的训练数据，$Seq2Seq$总能为我们发现源语言与目标语言的映射关系，并且帮助我们建立这种关系。</p>
+<p>首先，让我们忘记$Seq2Seq$架构，想一想如何描述机器翻译这个场景。彼时存在输入文本$\mathbf{x}={x_1, x_2, \ldots, x_n}$，通过翻译之后，将会得到另外一组序列文本$\mathbf{y}={y_1, y_2, \ldots, y_m}$。可以使用概率 $p(\mathbf{y} \mid \mathbf{x})$ 表示：<br>
+$$<br>
+\mathbf{y}^{*}=\arg \max_{\mathbf{y}} p(\mathbf{y} \mid \mathbf{x})<br>
+$$<br>
+理论上$\mathbf{y}$的空间是无穷大的，即可能出现很多个翻译结果，但最后需要的是那个概率最大的输出。</p>
+<p>接着，将上述的式子进行改写，加入模型的参数$\theta$，如下所示：<br>
+$$<br>
+\mathbf{y}^{*}=\arg \max_{\mathbf{y}} p(\mathbf{y} \mid \mathbf{x}, \theta)<br>
+$$<br>
+现在，我们已经定义了一个关于<code>机器翻译场景</code>的概率模型。其实，和它相似的概率模型还有很多，比如实体识别，同样如上述定义，只不过输入$\mathbf{x}$与输出$\mathbf{y}$的长度是一样的。之后要考虑的问题主要围绕三个方面：</p>
+<ol>
+<li>如何建模，即参数$\theta$长什么样子？</li>
+<li>如何去训练参数？</li>
+<li>如何推理？</li>
+</ol>
+<p>实际上，对于大多数涉及到概率模型去解决业务问题的，无论是基于联合概率分布的比如<code>HMM</code>或是基于条件概率分布的比如<code>CRF</code>或是之后要介绍的<code>Seq2Seq</code>，最后求解的时候就是这三板斧。</p>
+<h1>Reference</h1>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://lena-voita.github.io/nlp_course/seq2seq_and_attention.html#main_content">The best and intuitive blog I have ever read about Seq2Seq, Attention, Transformers and etc. Some parts of my article can be regarded as the chinese version of this blog.</a></li>
+<li><a target="_blank" rel="noopener" href="http://jalammar.github.io/illustrated-transformer/">Illustrated Transformer</a></li>
+<li><a target="_blank" rel="noopener" href="http://zh.gluon.ai/chapter_natural-language-processing/seq2seq.html">The best practical and theoretical Deep Learning Book, Dive into DL</a></li>
+</ul>
+</div></article></div></main><footer><div class="paginator"><a href="/Large-Language-Model/LoRA_Explained/" class="prev">← BACK</a><a href="/Natural-Language-Processing/LSTM_Explained/" class="next">NEXT →</a></div><div class="copyright"><p>© 2020 - 2023 by shayue.wt. All Rights Reserved.</p></div></footer></body><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script></html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> 目标检测中的mAP与IOU · Shayue'Log</title><meta name="description" content="目标检测中的mAP与IOU - wangt"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="/images/waterlemon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="search" type="application/opensearchdescription+xml" href="https://shayue111.github.io/atom.xml" title="Shayue'Log"><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.2.0"><link rel="alternate" href="/atom.xml" title="Shayue'Log" type="application/atom+xml">
+</head><body><header><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">HOME</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="/categories/" target="_self" class="nav-list-link">CATEGORY</a></li><li class="nav-list-item"><a href="/tags/" target="_self" class="nav-list-link">TAG</a></li><li class="nav-list-item"><a href="/about/" target="_self" class="nav-list-link">ABOUT</a></li></ul></header><main class="container"><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+    }
+});</script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});</script><script async type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><div class="post"><article class="post-block"><h1 class="post-title">目标检测中的mAP与IOU</h1><div class="post-info">Dec 9, 2020<a href="/tags/Object-Detection/" class="tag-title"># Object Detection</a><a href="/tags/Metric/" class="tag-title"># Metric</a></div><div class="post-content"><blockquote>
+<p>本文将介绍目标检测任务（Object Detection）中的一般评价指标(Metric) - mAP（mean average Precison）以及IOU（Intersection over Union）。</p>
+</blockquote>
+<a id="more"></a>
+<h2 id="Precision-Recall-Curve">Precision Recall Curve</h2>
+<p>在多分类任务中，模型在对某个样本预测后会得到一个概率，即属于$c_i$类的概率为$p_i$，通常会用PR曲线(Precision Recall Curve)判定模型的性能。</p>
+<p>假设现在需要画出针对类别$c_i$的PR曲线，具体做法是：</p>
+<ol>
+<li>设置多个阈值(threshold)，如果类别$c_i$对应的概率为$p_i$，如果大于阈值，认为是True Positive，反之属于False Positive；</li>
+<li>step1中设置出的多个阈值将产生多组(True Positive, False Positive)。针对每一组计算<code>precision</code>与<code>recall</code>两个指标；</li>
+<li>使用step2中得到的多组(precision, recall)，以recall为横轴，precision为纵轴，画出一条曲线。</li>
+</ol>
+<p>目标检测本质上包含多分类任务，并且之后mAP的计算与上述得到PR曲线的过程类似。</p>
+<h2 id="IOU">IOU</h2>
+<p>mAP的计算需要IOU的参与，因此这一部分介绍IOU的计算方式。目标检测模型在预测阶段会为图片或视频中检测出的物体（object）标记Bounding Box，同时还有概率值（confidence）。</p>
+<p>IOU的计算需要Bounding Box与Ground Truth label参与，前者是模型预测的值，后者被认为是图片中属于物体的真实范围。如下图所示，蓝色代表Bounding Box，绿色代表Ground Truth Box。</p>
+<p><img src="https://www.learnopencv.com/wp-content/uploads/2017/10/object-recognition-false-positives-true-positives.jpg" alt="Region Proposals示意"></p>
+<center style="font-size:14px;color:#C0C0C0">Region Proposals Example, from https://www.learnopencv.com/selective-search-for-object-detection-cpp-python/</center>
+<p>IOU用于描述两个BBox间的交集程度，如下图所示，一个BBox和Ground Truth Box存在相交（绿色部分）。<br>
+<img src="/images/ObjectDetection/IOU.png" alt="两个BBox示意"></p>
+<center style="font-size:14px;color:#C0C0C0">两个BBox示意</center>
+<p>此处IOU的计算方式如下：<br>
+$$<br>
+IOU = \frac{Area(绿色，overlap)}{Area(蓝+绿+红，union)}<br>
+$$<br>
+由于BBox会给定4个值确定位置，所以计算面积还是很容易的。</p>
+<h2 id="mAP">mAP</h2>
+<p>本部分以单张图片中单个类别所有预测出的BBox与Ground Truth Box为例，介绍mAP的计算流程。</p>
+<ol>
+<li>
+<p>选取一个阈值比如0.5，使用它对识别出来的BBox进行判断。如果该BBox的<code>IOU &gt; threshold</code>，那么认为这个BBox是<code>TP</code>，否则，认为它是<code>FP</code>；</p>
+</li>
+<li>
+<p>按照confidence降序排序，得到一个表格；</p>
+</li>
+<li>
+<p>自顶向下，通过累加计算<code>precision</code>和<code>recall</code>，并获得多组数据；</p>
+</li>
+<li>
+<p>使用step3获得的数据画出PR-curve，注意最开始应该是从(0, 1)开始的，它与坐标轴围成的面积，即是需要计算的AP。</p>
+</li>
+</ol>
+<h2 id="个人疑惑">个人疑惑</h2>
+<p>分类任务中的PR曲线是由<code>多组阈值</code>计算出多组precision和recall值画出的，但是mAP中的PR-curve是通过<code>一个阈值</code>计算出多组precision和recall值画出的。不知道是我哪里理解错了，还是在mAP中就是如此规定。</p>
+<h2 id="Reference">Reference</h2>
+<ul>
+<li>
+<p><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=FppOzcDvaDI&amp;list=PLhhyoLH6Ijfw0TpCTVTNk42NN08H6UvNq&amp;index=4">https://www.youtube.com/watch?v=FppOzcDvaDI&amp;list=PLhhyoLH6Ijfw0TpCTVTNk42NN08H6UvNq&amp;index=4</a> ，很有才的Youtuber，英语发音也很好，发布的视频都是从0到1去实现，非常适合希望深度了解的同学</p>
+</li>
+<li>
+<p><a target="_blank" rel="noopener" href="https://github.com/rafaelpadilla/Object-Detection-Metrics">https://github.com/rafaelpadilla/Object-Detection-Metrics</a> ，文字版计算过程</p>
+</li>
+</ul>
+</div></article></div></main><footer><div class="paginator"><a href="/Computer-Vision/Connectionist%20Temporal%20Classification/" class="prev">← BACK</a><a href="/Computer-Vision/%E7%90%86%E8%A7%A3R-CNN/" class="next">NEXT →</a></div><div class="copyright"><p>© 2020 - 2023 by shayue.wt. All Rights Reserved.</p></div></footer></body><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script></html>
