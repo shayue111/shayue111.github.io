@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>https://shayue111.github.io/Large-Language-Model/LoRA_Explained/</loc>
+    <loc>https://shayue111.github.io/posts/LoRA_Explained/</loc>
     
     <lastmod>2023-04-07</lastmod>
     
@@ -23,7 +23,7 @@
   </url>
   
   <url>
-    <loc>https://shayue111.github.io/Natural-Language-Processing/BERT_Explained/</loc>
+    <loc>https://shayue111.github.io/posts/BERT_Explained/</loc>
     
     <lastmod>2021-05-06</lastmod>
     
@@ -37,14 +37,14 @@
   </url>
   
   <url>
-    <loc>https://shayue111.github.io/Natural-Language-Processing/LSTM_Explained/</loc>
+    <loc>https://shayue111.github.io/posts/LSTM_Explained/</loc>
     
     <lastmod>2021-04-01</lastmod>
     
   </url>
   
   <url>
-    <loc>https://shayue111.github.io/Natural-Language-Processing/paper_spelling_error_correction/</loc>
+    <loc>https://shayue111.github.io/posts/paper_spelling_error_correction/</loc>
     
     <lastmod>2021-03-28</lastmod>
     
@@ -65,28 +65,28 @@
   </url>
   
   <url>
-    <loc>https://shayue111.github.io/uncategorized/BatchNormalization%20and%20LayerNormalization/</loc>
+    <loc>https://shayue111.github.io/posts/BatchNormalization%20and%20LayerNormalization/</loc>
     
     <lastmod>2020-12-21</lastmod>
     
   </url>
   
   <url>
-    <loc>https://shayue111.github.io/Computer-Vision/Connectionist%20Temporal%20Classification/</loc>
+    <loc>https://shayue111.github.io/posts/Connectionist%20Temporal%20Classification/</loc>
     
     <lastmod>2020-12-15</lastmod>
     
   </url>
   
   <url>
-    <loc>https://shayue111.github.io/Computer-Vision/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%E4%B8%AD%E7%9A%84mAP%E4%B8%8EIOU/</loc>
+    <loc>https://shayue111.github.io/posts/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%E4%B8%AD%E7%9A%84mAP%E4%B8%8EIOU/</loc>
     
     <lastmod>2020-12-09</lastmod>
     
   </url>
   
   <url>
-    <loc>https://shayue111.github.io/Computer-Vision/%E7%90%86%E8%A7%A3R-CNN/</loc>
+    <loc>https://shayue111.github.io/posts/%E7%90%86%E8%A7%A3R-CNN/</loc>
     
     <lastmod>2020-12-03</lastmod>
     
@@ -108,6 +108,13 @@
   
   <url>
     <loc>https://shayue111.github.io/categories/</loc>
+    
+    <lastmod>2020-10-30</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://shayue111.github.io/posts/</loc>
     
     <lastmod>2020-10-30</lastmod>
     
@@ -206,6 +213,13 @@
     <priority>0.6</priority>
   </url>
   
+  <url>
+    <loc>https://shayue111.github.io/tags/Large-Language-Model/</loc>
+    <lastmod>2023-04-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
 
   
   <url>
@@ -217,13 +231,6 @@
   
   <url>
     <loc>https://shayue111.github.io/categories/Natural-Language-Processing/</loc>
-    <lastmod>2023-04-08</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://shayue111.github.io/categories/Large-Language-Model/</loc>
     <lastmod>2023-04-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
