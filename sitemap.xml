@@ -165,6 +165,20 @@
   </url>
   
   <url>
+    <loc>https://shayue111.github.io/tags/Paper-Reading/</loc>
+    <lastmod>2023-04-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://shayue111.github.io/tags/Spelling-Error-Correction/</loc>
+    <lastmod>2023-04-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://shayue111.github.io/tags/Sequence-Model/</loc>
     <lastmod>2023-04-08</lastmod>
     <changefreq>daily</changefreq>
@@ -187,20 +201,6 @@
   
   <url>
     <loc>https://shayue111.github.io/tags/Efficient-Framework/</loc>
-    <lastmod>2023-04-08</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://shayue111.github.io/tags/Paper-Reading/</loc>
-    <lastmod>2023-04-08</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://shayue111.github.io/tags/Spelling-Error-Correction/</loc>
     <lastmod>2023-04-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
