@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://shayue111.github.io/posts/Training_Objective_of_DDPM/</loc>
+    
+    <lastmod>2023-05-03</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://shayue111.github.io/posts/LoRA_Explained/</loc>
     
     <lastmod>2023-04-07</lastmod>
@@ -130,7 +137,7 @@
 
   <url>
     <loc>https://shayue111.github.io/</loc>
-    <lastmod>2023-04-08</lastmod>
+    <lastmod>2023-05-03</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -138,84 +145,98 @@
   
   <url>
     <loc>https://shayue111.github.io/tags/Object-Detection/</loc>
-    <lastmod>2023-04-08</lastmod>
+    <lastmod>2023-05-03</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://shayue111.github.io/tags/R-CNN-Family/</loc>
-    <lastmod>2023-04-08</lastmod>
+    <lastmod>2023-05-03</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://shayue111.github.io/tags/Metric/</loc>
-    <lastmod>2023-04-08</lastmod>
+    <lastmod>2023-05-03</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://shayue111.github.io/tags/Text-Recognition/</loc>
-    <lastmod>2023-04-08</lastmod>
+    <lastmod>2023-05-03</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://shayue111.github.io/tags/Loss/</loc>
-    <lastmod>2023-04-08</lastmod>
+    <lastmod>2023-05-03</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://shayue111.github.io/tags/Paper-Reading/</loc>
-    <lastmod>2023-04-08</lastmod>
+    <lastmod>2023-05-03</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://shayue111.github.io/tags/Spelling-Error-Correction/</loc>
-    <lastmod>2023-04-08</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://shayue111.github.io/tags/Sequence-Model/</loc>
-    <lastmod>2023-04-08</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://shayue111.github.io/tags/Transformers/</loc>
-    <lastmod>2023-04-08</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://shayue111.github.io/tags/BERT-Family/</loc>
-    <lastmod>2023-04-08</lastmod>
+    <lastmod>2023-05-03</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://shayue111.github.io/tags/Efficient-Framework/</loc>
-    <lastmod>2023-04-08</lastmod>
+    <lastmod>2023-05-03</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://shayue111.github.io/tags/Large-Language-Model/</loc>
-    <lastmod>2023-04-08</lastmod>
+    <lastmod>2023-05-03</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://shayue111.github.io/tags/Transformers/</loc>
+    <lastmod>2023-05-03</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://shayue111.github.io/tags/BERT-Family/</loc>
+    <lastmod>2023-05-03</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://shayue111.github.io/tags/Sequence-Model/</loc>
+    <lastmod>2023-05-03</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://shayue111.github.io/tags/Diffusion-Model/</loc>
+    <lastmod>2023-05-03</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://shayue111.github.io/tags/Math-Heavy/</loc>
+    <lastmod>2023-05-03</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
@@ -224,14 +245,14 @@
   
   <url>
     <loc>https://shayue111.github.io/categories/Computer-Vision/</loc>
-    <lastmod>2023-04-08</lastmod>
+    <lastmod>2023-05-03</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://shayue111.github.io/categories/Natural-Language-Processing/</loc>
-    <lastmod>2023-04-08</lastmod>
+    <lastmod>2023-05-03</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
